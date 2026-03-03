@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{#
+base.html — Shared Layout Template
+====================================
+BEGINNER GUIDE:
+- This is a "base template" using Jinja2 (Flask's template engine).
+- All other pages EXTEND this template (they inherit the sidebar, header, etc.)
+- block content is where each page inserts its unique content.
+- url_for('route_name') generates URLs for Flask routes.
+#}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Personal Investment Portfolio Analyzer — Track and analyze your investments">
+    <title>{% block title %}Portfolio Analyzer{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- ========== SIDEBAR NAVIGATION ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <h1>📊 Portfolio Analyzer</h1>
+                <p>Investment Tracker</p>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">
+                        <span class="nav-icon">🏠</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('assets') }}" class="{{ 'active' if request.endpoint == 'assets' }}">
+                        <span class="nav-icon">💎</span>
+                        <span>Assets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('transactions') }}"
+                        class="{{ 'active' if request.endpoint in ['transactions', 'add_transaction'] }}">
+                        <span class="nav-icon">💱</span>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('portfolio') }}" class="{{ 'active' if request.endpoint == 'portfolio' }}">
+                        <span class="nav-icon">💼</span>
+                        <span>Portfolio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('allocation') }}" class="{{ 'active' if request.endpoint == 'allocation' }}">
+                        <span class="nav-icon">🎯</span>
+                        <span>Allocation</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('performance') }}" class="{{ 'active' if request.endpoint == 'performance' }}">
+                        <span class="nav-icon">🏆</span>
+                        <span>Performance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('trends') }}" class="{{ 'active' if request.endpoint == 'trends' }}">
+                        <span class="nav-icon">📈</span>
+                        <span>Trends</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <main class="main-content">
+            <!-- Flash Messages (success/error notifications) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+</body>
+
+</html>

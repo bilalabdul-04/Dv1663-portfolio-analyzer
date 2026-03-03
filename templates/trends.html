@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Monthly Trends — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📈 Monthly Investment Trends</h2>
+    <p>Track how your investment activity changes over time</p>
+</div>
+
+<!-- User Selector -->
+<div class="user-selector">
+    {% for user in users %}
+    <a href="{{ url_for('trends', user_id=user['user_id']) }}"
+        class="user-btn {{ 'active' if user['user_id'] == current_user_id }}">
+        👤 {{ user['username'] }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Trend Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th># Transactions</th>
+                <th>Total Bought</th>
+                <th>Total Sold</th>
+                <th>Net Investment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in trends %}
+            <tr>
+                <td><strong>{{ t['month'] }}</strong></td>
+                <td>{{ t['num_transactions'] }}</td>
+                <td>
+                    <span class="amount-positive">${{ "%.2f"|format(t['total_bought']) }}</span>
+                </td>
+                <td>
+                    {% if t['total_sold'] > 0 %}
+                    <span class="amount-negative">${{ "%.2f"|format(t['total_sold']) }}</span>
+                    {% else %}
+                    <span style="color: var(--text-muted);">$0.00</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong class="{{ 'amount-positive' if t['net_investment'] >= 0 else 'amount-negative' }}">
+                        {{ '+' if t['net_investment'] >= 0 }}${{ "%.2f"|format(t['net_investment']) }}
+                    </strong>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">
+                    <div class="empty-state">
+                        <div class="icon">📈</div>
+                        <p>No trend data available yet.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

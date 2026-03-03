@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Dashboard</h2>
+    <p>Welcome to your Personal Investment Portfolio Analyzer</p>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="label">Total Users</div>
+        <div class="value">{{ total_users }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Assets Tracked</div>
+        <div class="value">{{ total_assets }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Transactions</div>
+        <div class="value">{{ total_transactions }}</div>
+    </div>
+</div>
+
+<!-- Quick Access -->
+<div class="form-section">
+    <h3>🚀 Quick Navigation</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">
+        Select a user and explore their investment portfolio:
+    </p>
+    <div class="user-selector">
+        {% for user in users %}
+        <a href="{{ url_for('portfolio', user_id=user['user_id']) }}" class="user-btn">
+            👤 {{ user['username'] }} — View Portfolio
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="form-section">
+    <h3>📖 How This Application Works</h3>
+    <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
+        <p><strong>💎 Assets</strong> — View and add financial instruments (Stocks, ETFs, Crypto)</p>
+        <p><strong>💱 Transactions</strong> — Record buy/sell trades with automatic total calculation</p>
+        <p><strong>💼 Portfolio</strong> — See your holdings, profit/loss, and return percentages</p>
+        <p><strong>🎯 Allocation</strong> — Analyze diversification across industry sectors</p>
+        <p><strong>🏆 Performance</strong> — Rank your assets by investment return</p>
+        <p><strong>📈 Trends</strong> — Track monthly investment patterns</p>
+    </div>
+</div>
+{% endblock %}

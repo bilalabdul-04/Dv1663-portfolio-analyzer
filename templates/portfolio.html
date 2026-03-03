@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Portfolio — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>💼 Portfolio Summary</h2>
+    <p>Your complete investment overview — powered by stored procedure</p>
+</div>
+
+<!-- User Selector -->
+<div class="user-selector">
+    {% for user in users %}
+    <a href="{{ url_for('portfolio', user_id=user['user_id']) }}"
+        class="user-btn {{ 'active' if user['user_id'] == current_user_id }}">
+        👤 {{ user['username'] }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Portfolio Totals -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="label">Total Invested</div>
+        <div class="value">${{ "%.2f"|format(totals['invested']) }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Current Value</div>
+        <div class="value">${{ "%.2f"|format(totals['current']) }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Total Profit / Loss</div>
+        <div class="value {{ 'positive' if totals['profit_loss'] >= 0 else 'negative' }}">
+            {{ '+' if totals['profit_loss'] >= 0 }}${{ "%.2f"|format(totals['profit_loss']) }}
+        </div>
+    </div>
+</div>
+
+<!-- Holdings Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Sector</th>
+                <th>Qty Held</th>
+                <th>Avg Buy Price</th>
+                <th>Current Price</th>
+                <th>Invested</th>
+                <th>Current Value</th>
+                <th>P/L</th>
+                <th>Return %</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in holdings %}
+            <tr>
+                <td><strong>{{ h['symbol'] }}</strong></td>
+                <td>{{ h['name'] }}</td>
+                <td>
+                    <span class="badge badge-{{ h['asset_type']|lower }}">{{ h['asset_type'] }}</span>
+                </td>
+                <td>{{ h['sector'] }}</td>
+                <td>{{ h['quantity_held'] }}</td>
+                <td>${{ "%.2f"|format(h['avg_buy_price']) }}</td>
+                <td>${{ "%.2f"|format(h['current_price']) }}</td>
+                <td>${{ "%.2f"|format(h['invested_amount']) }}</td>
+                <td>${{ "%.2f"|format(h['current_value']) }}</td>
+                <td>
+                    <span class="{{ 'amount-positive' if h['profit_loss'] >= 0 else 'amount-negative' }}">
+                        {{ '+' if h['profit_loss'] >= 0 }}${{ "%.2f"|format(h['profit_loss']) }}
+                    </span>
+                </td>
+                <td>
+                    <span class="return-bar {{ 'positive' if h['return_pct'] >= 0 else 'negative' }}">
+                        {{ '+' if h['return_pct'] >= 0 }}{{ "%.1f"|format(h['return_pct']) }}%
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11">
+                    <div class="empty-state">
+                        <div class="icon">💼</div>
+                        <p>No holdings found. Record some buy transactions first!</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

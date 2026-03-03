@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Sector Allocation — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🎯 Sector Allocation</h2>
+    <p>How diversified is your portfolio across industry sectors?</p>
+</div>
+
+<!-- User Selector -->
+<div class="user-selector">
+    {% for user in users %}
+    <a href="{{ url_for('allocation', user_id=user['user_id']) }}"
+        class="user-btn {{ 'active' if user['user_id'] == current_user_id }}">
+        👤 {{ user['username'] }}
+    </a>
+    {% endfor %}
+</div>
+
+{% if allocation %}
+<!-- Allocation Visual Bars -->
+<div class="form-section">
+    <h3>Portfolio Distribution</h3>
+    <div class="allocation-bars" style="margin-top: 16px;">
+        {% for a in allocation %}
+        <div class="alloc-item">
+            <div class="alloc-info">
+                <span class="sector-name">{{ a['sector_name'] }}</span>
+                <span class="sector-pct">{{ a['percentage'] }}%</span>
+            </div>
+            <div class="alloc-bar-bg">
+                <div class="alloc-bar-fill" style="width: {{ a['percentage'] }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Allocation Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sector</th>
+                <th>Net Investment ($)</th>
+                <th>Allocation (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in allocation %}
+            <tr>
+                <td><strong>{{ a['sector_name'] }}</strong></td>
+                <td>${{ "%.2f"|format(a['sector_investment']) }}</td>
+                <td>
+                    <span class="return-bar positive">{{ a['percentage'] }}%</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="form-section">
+    <div class="empty-state">
+        <div class="icon">🎯</div>
+        <p>No allocation data available. Record some transactions first!</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

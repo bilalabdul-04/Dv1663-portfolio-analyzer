@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Assets — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>💎 Assets</h2>
+    <p>All available financial instruments</p>
+</div>
+
+<!-- Add New Asset Form -->
+<div class="form-section">
+    <h3>Add New Asset</h3>
+    <form action="{{ url_for('add_asset') }}" method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="symbol">Symbol</label>
+                <input type="text" id="symbol" name="symbol" placeholder="e.g. TSLA" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="e.g. Tesla Inc." required>
+            </div>
+            <div class="form-group">
+                <label for="asset_type">Type</label>
+                <select id="asset_type" name="asset_type" required>
+                    <option value="Stock">Stock</option>
+                    <option value="ETF">ETF</option>
+                    <option value="Crypto">Crypto</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sector_id">Sector</label>
+                <select id="sector_id" name="sector_id" required>
+                    {% for sector in sectors %}
+                    <option value="{{ sector['sector_id'] }}">{{ sector['sector_name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">+ Add Asset</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Asset List -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Sector</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assets %}
+            <tr>
+                <td><strong>{{ asset['symbol'] }}</strong></td>
+                <td>{{ asset['name'] }}</td>
+                <td>
+                    <span class="badge badge-{{ asset['asset_type']|lower }}">
+                        {{ asset['asset_type'] }}
+                    </span>
+                </td>
+                <td>{{ asset['sector_name'] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+                        <div class="icon">💎</div>
+                        <p>No assets yet. Add one above!</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

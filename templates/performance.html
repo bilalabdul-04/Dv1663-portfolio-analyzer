@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Performance — Portfolio Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🏆 Top Performing Assets</h2>
+    <p>Ranked by investment return percentage</p>
+</div>
+
+<!-- User Selector -->
+<div class="user-selector">
+    {% for user in users %}
+    <a href="{{ url_for('performance', user_id=user['user_id']) }}"
+        class="user-btn {{ 'active' if user['user_id'] == current_user_id }}">
+        👤 {{ user['username'] }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Performance Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Avg Buy Price</th>
+                <th>Current Price</th>
+                <th>Return</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in performance %}
+            <tr>
+                <td>
+                    {% if loop.index == 1 %}🥇
+                    {% elif loop.index == 2 %}🥈
+                    {% elif loop.index == 3 %}🥉
+                    {% else %}#{{ loop.index }}
+                    {% endif %}
+                </td>
+                <td><strong>{{ p['symbol'] }}</strong></td>
+                <td>{{ p['name'] }}</td>
+                <td>
+                    <span class="badge badge-{{ p['asset_type']|lower }}">{{ p['asset_type'] }}</span>
+                </td>
+                <td>${{ "%.2f"|format(p['avg_buy_price']) }}</td>
+                <td>${{ "%.2f"|format(p['current_price']) }}</td>
+                <td>
+                    <span class="return-bar {{ 'positive' if p['return_pct'] >= 0 else 'negative' }}">
+                        {{ '+' if p['return_pct'] >= 0 }}{{ "%.1f"|format(p['return_pct']) }}%
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <div class="icon">🏆</div>
+                        <p>No performance data yet. Record some buy transactions first!</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
