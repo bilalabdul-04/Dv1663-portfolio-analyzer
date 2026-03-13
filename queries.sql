@@ -6,24 +6,7 @@
 -- ============================================================
 
 
--- ============================================================
 -- QUERY 1: Portfolio Summary per User
--- ============================================================
--- WHAT IT DOES:
---   Shows each user's total invested amount, current portfolio
---   value (based on latest prices), and profit/loss.
---
--- SQL FEATURES USED:
---   ✅ Multi-table JOIN (Users, Transactions, Assets, PriceHistory)
---   ✅ Aggregation (SUM)
---   ✅ Subquery (to get latest price)
---
--- HOW IT WORKS:
---   1. For each user, sum up all BUY transactions (= total invested)
---   2. Subtract all SELL transactions
---   3. Calculate current value using the latest price from PriceHistory
---   4. Profit/Loss = current value - net invested
--- ============================================================
 SELECT
     u.user_id,
     u.username,
@@ -53,19 +36,7 @@ LEFT JOIN Assets a ON t.asset_id = a.asset_id
 GROUP BY u.user_id, u.username;
 
 
--- ============================================================
 -- QUERY 2: Portfolio Allocation by Sector
--- ============================================================
--- WHAT IT DOES:
---   Shows what percentage of a user's investment is in each
---   sector (e.g., 40% Technology, 30% Healthcare, etc.)
---
--- SQL FEATURES USED:
---   ✅ Multi-table JOIN (Transactions, Assets, Sectors)
---   ✅ Aggregation (SUM)
---   ✅ GROUP BY
---   ✅ Subquery (for percentage calculation)
--- ============================================================
 SELECT
     s.sector_name,
     SUM(CASE WHEN t.type = 'BUY' THEN t.total_amount ELSE -t.total_amount END)
@@ -85,18 +56,7 @@ GROUP BY s.sector_name
 ORDER BY sector_investment DESC;
 
 
--- ============================================================
 -- QUERY 3: Top Performing Assets by Return %
--- ============================================================
--- WHAT IT DOES:
---   Ranks assets by their return percentage.
---   Return % = ((current price - avg buy price) / avg buy price) × 100
---
--- SQL FEATURES USED:
---   ✅ JOIN (Assets, Transactions, PriceHistory)
---   ✅ Aggregation (AVG, SUM)
---   ✅ ORDER BY
--- ============================================================
 SELECT
     a.symbol,
     a.name,
@@ -123,17 +83,7 @@ GROUP BY a.asset_id, a.symbol, a.name
 ORDER BY return_pct DESC;
 
 
--- ============================================================
 -- QUERY 4: Transaction History with Asset & Sector Details
--- ============================================================
--- WHAT IT DOES:
---   Lists all transactions for a user, enriched with the
---   asset name, symbol, type, and sector name.
---
--- SQL FEATURES USED:
---   ✅ Multi-table JOIN (Transactions, Assets, Sectors)
---   ✅ ORDER BY
--- ============================================================
 SELECT
     t.transaction_id,
     t.transaction_date,
@@ -151,18 +101,7 @@ WHERE t.user_id = ?   -- Replace ? with user_id
 ORDER BY t.transaction_date DESC;
 
 
--- ============================================================
 -- QUERY 5: Monthly Investment Trend
--- ============================================================
--- WHAT IT DOES:
---   Shows how much a user invested each month.
---   Useful for spotting investment patterns over time.
---
--- SQL FEATURES USED:
---   ✅ Aggregation (SUM, COUNT)
---   ✅ GROUP BY (with strftime for date grouping)
---   ✅ ORDER BY
--- ============================================================
 SELECT
     strftime('%Y-%m', t.transaction_date) AS month,
     COUNT(*) AS num_transactions,

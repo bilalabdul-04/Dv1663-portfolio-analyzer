@@ -1,13 +1,6 @@
 """
-seed_data.py — Populate the Database with Sample Data
-======================================================
-BEGINNER GUIDE:
-- Run this script AFTER database.py to fill the database
-  with realistic sample data for testing and demonstration.
-- It creates users, sectors, assets, transactions, and price history.
-
-HOW TO RUN:
-    python seed_data.py
+Seed module for the Portfolio Analyzer.
+Populates the database with initial sample data for development and testing.
 """
 
 from database import get_db, init_db

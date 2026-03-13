@@ -1,15 +1,6 @@
 """
-database.py — Database Connection & Initialization
-====================================================
-BEGINNER GUIDE:
-- This file handles connecting to the SQLite database.
-- It reads schema.sql and creates all the tables.
-- Other files import 'get_db()' to get a database connection.
-
-WHAT IS SQLite?
-- SQLite is a lightweight database stored in a single file.
-- Python has built-in support for it — no installation needed!
-- The database file will be called 'portfolio.db'.
+Database module for the Portfolio Analyzer application.
+Handles database connections, initialization, and core data retrieval logic.
 """
 
 import sqlite3
@@ -22,14 +13,10 @@ DATABASE = os.path.join(BASE_DIR, 'portfolio.db')
 
 def get_db():
     """
-    Create and return a connection to the SQLite database.
-
-    WHAT IS A CONNECTION?
-    Think of it like opening a file — you need to 'connect' to the
-    database before you can read or write data.
-
-    row_factory = sqlite3.Row makes query results behave like
-    dictionaries, so you can access columns by name (e.g., row['username']).
+    Establish a connection to the SQLite database.
+    
+    Returns:
+        sqlite3.Connection: Database connection object.
     """
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row          # Access columns by name
@@ -59,12 +46,9 @@ def close_db(conn):
         conn.close()
 
 
-# ---------- Stored Procedure (simulated) ----------
-# WHAT IS A STORED PROCEDURE?
-# In bigger databases (MySQL, PostgreSQL), a stored procedure is
-# a saved block of SQL code you can call by name. SQLite doesn't
-# support them natively, so we implement the same logic in Python
-# with raw SQL queries — which is just as valid for this course.
+# ---------- Simulated Stored Procedures ----------
+# SQLite doesn't support stored procedures natively, 
+# so logic is implemented here using raw SQL queries.
 
 def sp_portfolio_summary(user_id):
     """
@@ -135,11 +119,7 @@ def sp_portfolio_summary(user_id):
 # ---------- SQL Function (simulated) ----------
 def fn_asset_return(user_id, asset_id):
     """
-    SQL FUNCTION: Compute the return percentage for a specific asset.
-
-    Formula: ((current_price - avg_buy_price) / avg_buy_price) × 100
-
-    Returns a dictionary with the calculation details.
+    Calculate the return percentage for a specific asset.
     """
     conn = get_db()
 

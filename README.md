@@ -1,10 +1,6 @@
 # 📊 Personal Investment Portfolio Analyzer
 
-A database-driven web application for tracking and analyzing investment portfolios.  
-Built with **Python Flask** + **SQLite** using **raw SQL queries** (no ORM).
-
-> **Course:** Databaser DV1663 — Blekinge Tekniska Högskola (BTH)
-
+A comprehensive database-driven web application for tracking and analyzing investment portfolios. Built with Python Flask and SQLite, utilizing robust SQL queries for data management and analysis.
 ---
 
 ## Features

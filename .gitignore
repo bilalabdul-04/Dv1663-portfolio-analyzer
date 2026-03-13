@@ -14,10 +14,3 @@ portfolio.db
 .idea/
 *.swp
 *.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Gemini agent files
-.gemini/

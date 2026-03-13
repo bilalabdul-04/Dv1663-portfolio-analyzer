@@ -1,17 +1,6 @@
 """
-app.py — Main Flask Application
-=================================
-BEGINNER GUIDE:
-- This is the 'brain' of the web application.
-- Flask is a lightweight Python web framework.
-- Each @app.route(...) defines a URL and what to show.
-- Templates (HTML files) are rendered with data from the database.
-
-HOW TO RUN:
-    pip install flask
-    python seed_data.py      (first time only — fills database)
-    python app.py            (starts the web server)
-    Open http://localhost:5000 in your browser
+Main Flask Application for the Portfolio Analyzer.
+Coordinates routing, database interactions, and template rendering.
 """
 
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -110,10 +99,7 @@ def add_asset():
 @app.route('/transactions')
 @app.route('/transactions/<int:user_id>')
 def transactions(user_id=None):
-    """
-    Show transaction history for a user.
-    Uses QUERY 4: Transaction History with Asset & Sector Details.
-    """
+    """Show transaction history for a user."""
     conn = get_db()
     users = conn.execute("SELECT * FROM Users").fetchall()
 
@@ -122,7 +108,7 @@ def transactions(user_id=None):
 
     transactions_list = []
     if user_id:
-        # QUERY 4 — Multi-table JOIN
+        # Fetch transactions with asset and sector details
         transactions_list = conn.execute("""
             SELECT
                 t.transaction_id,
@@ -182,10 +168,7 @@ def add_transaction():
 @app.route('/portfolio')
 @app.route('/portfolio/<int:user_id>')
 def portfolio(user_id=None):
-    """
-    Show complete portfolio summary for a user.
-    Uses the STORED PROCEDURE sp_portfolio_summary.
-    """
+    """Show complete portfolio summary for a user."""
     conn = get_db()
     users = conn.execute("SELECT * FROM Users").fetchall()
     conn.close()
@@ -215,10 +198,7 @@ def portfolio(user_id=None):
 @app.route('/allocation')
 @app.route('/allocation/<int:user_id>')
 def allocation(user_id=None):
-    """
-    Show portfolio allocation by sector.
-    Uses QUERY 2: Portfolio Allocation by Sector.
-    """
+    """Show portfolio allocation by sector."""
     conn = get_db()
     users = conn.execute("SELECT * FROM Users").fetchall()
 
@@ -227,7 +207,7 @@ def allocation(user_id=None):
 
     allocation_data = []
     if user_id:
-        # QUERY 2 — Sector allocation with percentage
+        # Calculate sector allocation percentages
         allocation_data = conn.execute("""
             SELECT
                 s.sector_name,
@@ -261,10 +241,7 @@ def allocation(user_id=None):
 @app.route('/performance')
 @app.route('/performance/<int:user_id>')
 def performance(user_id=None):
-    """
-    Show top performing assets by return %.
-    Uses QUERY 3: Top Performing Assets.
-    """
+    """Show top performing assets by return percentage."""
     conn = get_db()
     users = conn.execute("SELECT * FROM Users").fetchall()
 
@@ -315,10 +292,7 @@ def performance(user_id=None):
 @app.route('/trends')
 @app.route('/trends/<int:user_id>')
 def trends(user_id=None):
-    """
-    Show monthly investment trends.
-    Uses QUERY 5: Monthly Investment Trend.
-    """
+    """Show monthly investment trends."""
     conn = get_db()
     users = conn.execute("SELECT * FROM Users").fetchall()
 
@@ -353,6 +327,6 @@ def trends(user_id=None):
 # Run the app
 # ----------------------------------------------------------
 if __name__ == '__main__':
-    print("🚀 Starting Portfolio Analyzer...")
+    print(" Starting Portfolio Analyzer...")
     print("   Open http://localhost:5000 in your browser")
     app.run(debug=True, port=5000)

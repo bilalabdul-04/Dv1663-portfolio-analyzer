@@ -1,19 +1,17 @@
 -- ============================================================
--- Personal Investment Portfolio Analyzer — Database Schema
+-- CLEAR EXISTING DATA (To allow running this script multiple times)
 -- ============================================================
--- This file creates all tables, constraints, and triggers.
--- Database engine: SQLite
---
--- HOW TO READ THIS FILE (Beginner Guide):
--- --------------------------------------------------------
--- CREATE TABLE  = makes a new table (like a spreadsheet)
--- PRIMARY KEY   = unique ID for each row (no duplicates)
--- FOREIGN KEY   = links this table to another table
--- NOT NULL      = this column must always have a value
--- CHECK         = a rule the data must follow
--- DEFAULT       = value used if you don't provide one
--- TRIGGER       = automatic action that runs on insert/update
--- ============================================================
+DROP TRIGGER IF EXISTS trg_calculate_total;
+DROP TRIGGER IF EXISTS trg_prevent_oversell;
+DROP INDEX IF EXISTS idx_transactions_user;
+DROP INDEX IF EXISTS idx_transactions_asset;
+DROP INDEX IF EXISTS idx_pricehistory_asset;
+DROP INDEX IF EXISTS idx_assets_sector;
+DROP TABLE IF EXISTS PriceHistory;
+DROP TABLE IF EXISTS Transactions;
+DROP TABLE IF EXISTS Assets;
+DROP TABLE IF EXISTS Sectors;
+DROP TABLE IF EXISTS Users;
 
 -- ============================================================
 -- TABLE 1: Users
@@ -21,11 +19,11 @@
 -- Stores people who use the application.
 -- Each user can have many transactions (1:N relationship).
 CREATE TABLE Users (
-    user_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-    username    TEXT    NOT NULL UNIQUE,
-    email       TEXT    NOT NULL UNIQUE,
-    password    TEXT    NOT NULL,
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- ============================================================
@@ -34,8 +32,8 @@ CREATE TABLE Users (
 -- Industry categories like Technology, Healthcare, Finance.
 -- Each sector can contain many assets (1:N relationship).
 CREATE TABLE Sectors (
-    sector_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    sector_name TEXT    NOT NULL UNIQUE
+    sector_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sector_name TEXT NOT NULL UNIQUE
 );
 
 -- ============================================================
@@ -45,12 +43,14 @@ CREATE TABLE Sectors (
 -- Each asset belongs to exactly one sector (N:1 relationship).
 -- Each asset can appear in many transactions (1:N).
 CREATE TABLE Assets (
-    asset_id    INTEGER PRIMARY KEY AUTOINCREMENT,
-    symbol      TEXT    NOT NULL UNIQUE,       -- e.g. "AAPL", "BTC"
-    name        TEXT    NOT NULL,              -- e.g. "Apple Inc."
-    asset_type  TEXT    NOT NULL CHECK (asset_type IN ('Stock', 'ETF', 'Crypto')),
-    sector_id   INTEGER NOT NULL,
-    FOREIGN KEY (sector_id) REFERENCES Sectors(sector_id)
+    asset_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    symbol TEXT NOT NULL UNIQUE, -- e.g. "AAPL", "BTC"
+    name TEXT NOT NULL, -- e.g. "Apple Inc."
+    asset_type TEXT NOT NULL CHECK (
+        asset_type IN ('Stock', 'ETF', 'Crypto')
+    ),
+    sector_id INTEGER NOT NULL,
+    FOREIGN KEY (sector_id) REFERENCES Sectors (sector_id)
 );
 
 -- ============================================================
@@ -60,16 +60,16 @@ CREATE TABLE Assets (
 -- Links to both Users (who?) and Assets (what?).
 -- total_amount is auto-calculated by a trigger (see below).
 CREATE TABLE Transactions (
-    transaction_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id          INTEGER NOT NULL,
-    asset_id         INTEGER NOT NULL,
-    type             TEXT    NOT NULL CHECK (type IN ('BUY', 'SELL')),
-    quantity         REAL    NOT NULL CHECK (quantity > 0),
-    price_per_unit   REAL    NOT NULL CHECK (price_per_unit > 0),
-    total_amount     REAL,                    -- auto-filled by trigger
-    transaction_date TEXT    NOT NULL DEFAULT (date('now')),
-    FOREIGN KEY (user_id)  REFERENCES Users(user_id),
-    FOREIGN KEY (asset_id) REFERENCES Assets(asset_id)
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    asset_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('BUY', 'SELL')),
+    quantity REAL NOT NULL CHECK (quantity > 0),
+    price_per_unit REAL NOT NULL CHECK (price_per_unit > 0),
+    total_amount REAL, -- auto-filled by trigger
+    transaction_date TEXT NOT NULL DEFAULT (date('now')),
+    FOREIGN KEY (user_id) REFERENCES Users (user_id),
+    FOREIGN KEY (asset_id) REFERENCES Assets (asset_id)
 );
 
 -- ============================================================
@@ -78,24 +78,15 @@ CREATE TABLE Transactions (
 -- Historical closing prices for each asset.
 -- Used to calculate current portfolio value.
 CREATE TABLE PriceHistory (
-    price_id    INTEGER PRIMARY KEY AUTOINCREMENT,
-    asset_id    INTEGER NOT NULL,
-    price_date  TEXT    NOT NULL,
-    close_price REAL    NOT NULL CHECK (close_price >= 0),
-    FOREIGN KEY (asset_id) REFERENCES Assets(asset_id),
-    UNIQUE(asset_id, price_date)              -- one price per asset per day
+    price_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    asset_id INTEGER NOT NULL,
+    price_date TEXT NOT NULL,
+    close_price REAL NOT NULL CHECK (close_price >= 0),
+    FOREIGN KEY (asset_id) REFERENCES Assets (asset_id),
+    UNIQUE (asset_id, price_date) -- one price per asset per day
 );
 
--- ============================================================
--- TRIGGER: Auto-calculate total_amount on INSERT
--- ============================================================
--- WHAT IS A TRIGGER?
--- A trigger is a piece of SQL that runs automatically when
--- something happens (INSERT, UPDATE, or DELETE).
---
--- This trigger fires BEFORE a new transaction is inserted.
--- It sets total_amount = quantity × price_per_unit automatically,
--- so the user doesn't have to calculate it themselves.
+-- TRIGGER: Calculate total_amount automatically before insertion.
 CREATE TRIGGER trg_calculate_total
 BEFORE INSERT ON Transactions
 FOR EACH ROW
@@ -118,11 +109,9 @@ BEGIN
     WHERE transaction_id = NEW.transaction_id;
 END;
 
--- ============================================================
--- TRIGGER: Prevent selling more than owned
--- ============================================================
--- This trigger checks that a user cannot sell more of an asset
--- than they currently own. It adds safety to the application.
+-- TRIGGER: Ensure a user has sufficient quantity of an asset before allowing a SELL transaction.
+DROP TRIGGER IF EXISTS trg_prevent_oversell;
+
 CREATE TRIGGER trg_prevent_oversell
 BEFORE INSERT ON Transactions
 FOR EACH ROW
@@ -144,7 +133,14 @@ END;
 -- ============================================================
 -- INDEX: Speed up common queries
 -- ============================================================
-CREATE INDEX idx_transactions_user   ON Transactions(user_id);
-CREATE INDEX idx_transactions_asset  ON Transactions(asset_id);
-CREATE INDEX idx_pricehistory_asset  ON PriceHistory(asset_id);
-CREATE INDEX idx_assets_sector       ON Assets(sector_id);
+DROP INDEX IF EXISTS idx_transactions_user;
+CREATE INDEX idx_transactions_user ON Transactions (user_id);
+
+DROP INDEX IF EXISTS idx_transactions_asset;
+CREATE INDEX idx_transactions_asset ON Transactions (asset_id);
+
+DROP INDEX IF EXISTS idx_pricehistory_asset;
+CREATE INDEX idx_pricehistory_asset ON PriceHistory (asset_id);
+
+DROP INDEX IF EXISTS idx_assets_sector;
+CREATE INDEX idx_assets_sector ON Assets (sector_id);
