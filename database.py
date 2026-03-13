@@ -32,7 +32,7 @@ def init_db():
     It only runs the schema — it does NOT insert sample data.
     """
     conn = get_db()
-    schema_path = os.path.join(BASE_DIR, 'schema.sql')
+    schema_path = os.path.join(BASE_DIR, 'sql', 'schema.sql')
     with open(schema_path, 'r') as f:
         conn.executescript(f.read())
     conn.commit()
