@@ -6,8 +6,8 @@ __pycache__/
 dist/
 build/
 
-# Database file (can be recreated with seed_data.py)
-portfolio.db
+# Database file (included for demo purposes)
+# portfolio.db
 
 # IDE / Editor
 .vscode/
